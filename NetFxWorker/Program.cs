@@ -12,24 +12,32 @@ namespace NetFxWorker
     {
         static void Main(string[] args)
         {
-            var worker =
+            //var worker =
                 //new InProcessWorker();
-                //new ThreadWorker();
-                new AppDomainWorker();
+                //new SingleAppDomainWorker();
+                //new SingleProcessWorker();
 
             Stopwatch _timer = new Stopwatch();
-            int count = 100;
+            int count = 1000;
 
-            _timer.Restart();
-            for (int i = 0;i<count; i++)
+            foreach (var worker in (new HelloWorkerBase[] { 
+                new InProcessWorker(), 
+                new SingleAppDomainWorker(),
+                new SingleProcessWorker(@"D:\CodeWork\github.com\Andrew.ProcessPoolDemo\NetFxProcess\bin\Debug\NetFxProcess.exe"),
+                new SingleProcessWorker(@"D:\CodeWork\github.com\Andrew.ProcessPoolDemo\NetCoreProcess\bin\Debug\netcoreapp3.1\NetCoreProcess.exe"),}))
             {
-                var task = worker.QueueTask(1);
-                task.Wait.Wait();
-                Console.WriteLine(task.Result);
-            }
-            worker.CompleteWorker();
+                _timer.Restart();
+                for (int i = 0; i < count; i++)
+                {
+                    var task = worker.QueueTask(1);
 
-            Console.WriteLine($"{worker.GetType().Name}: {count * 1000.0 / _timer.ElapsedMilliseconds} tasks/sec");
+                    //task.Wait.Wait();
+                    //Console.WriteLine(task.ReturnValue);
+                }
+                worker.Stop();
+
+                Console.WriteLine($"{worker.GetType().Name}: {count * 1000.0 / _timer.ElapsedMilliseconds} tasks/sec");
+            }
         }
     }
 
@@ -45,32 +53,30 @@ namespace NetFxWorker
 
 
 
-    public class AppDomainWorker : WorkerBase
+    public class SingleAppDomainWorker : HelloWorkerBase
     {
         private AppDomain _domain = null;
 
-        public AppDomainWorker()
+        public SingleAppDomainWorker()
         {
             this._domain = AppDomain.CreateDomain("demo");
         }
 
-        public override TaskWrap<int, string> QueueTask(int size)
+        public override HelloTaskResult QueueTask(int size)
         {
             HelloTask ht = this._domain.CreateInstanceAndUnwrap(typeof(HelloTask).Assembly.FullName, typeof(HelloTask).FullName) as HelloTask;
 
-            TaskWrap<int, string> tw = new WorkerBase.TaskWrap<int, string>()
+            return new HelloWorkerBase.HelloTaskResult(true)
             {
-                Args = size,
-                //Result = ht.DoTask(size),
-                Result = Convert.ToBase64String(ht.DoTask(new byte[1024 * 1024])),
+                //ReturnValue = ht.DoTask(size),
+                ReturnValue = ht.DoTask(new byte[1 * 1024 * 1024]),
             };
-            
-            tw.Wait.Set();
-            return tw;
         }
 
-        public override void CompleteWorker()
+        public override void Stop()
         {
+            AppDomain.Unload(this._domain);
+            this._domain = null;
             return;
         }
     }

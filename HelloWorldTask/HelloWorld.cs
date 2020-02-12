@@ -14,7 +14,7 @@ namespace HelloWorldTask
             //return result;
 
             Random rnd = new Random();
-            byte[] buffer = new byte[16 * 1024 * 1024]; // 16mb
+            byte[] buffer = new byte[1 * 1024 * 1024]; // 16mb
             rnd.NextBytes(buffer);
 
             var ha = HashAlgorithm.Create("SHA512");

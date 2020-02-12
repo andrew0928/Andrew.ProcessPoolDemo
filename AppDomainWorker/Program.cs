@@ -24,7 +24,7 @@ namespace AppDomainWorker
                 {
                     HelloWorldTask.Program.Main(null);
                 }
-                Console.WriteLine($"Benchmark (InProcess Mode):           { total_domain_cycle_count * 1000.0 / timer.ElapsedMilliseconds } run / sec");
+                Console.WriteLine($"Benchmark (InProcess Mode):           { total_domain_cycle_count * 1000.0 * 100 / timer.ElapsedMilliseconds } run / sec");
             }
 
             //if (false)
@@ -39,7 +39,7 @@ namespace AppDomainWorker
                     t.Start();
                     t.Join();
                 }
-                Console.WriteLine($"Benchmark (Thread Mode):              { total_domain_cycle_count * 1000.0 / timer.ElapsedMilliseconds } run / sec");
+                Console.WriteLine($"Benchmark (Thread Mode):              { total_domain_cycle_count * 1000.0 * 100 / timer.ElapsedMilliseconds } run / sec");
             }
 
             //if (false)
@@ -51,7 +51,7 @@ namespace AppDomainWorker
                     var r = d.ExecuteAssemblyByName(typeof(HelloWorld).Assembly.FullName);
                     AppDomain.Unload(d);
                 }
-                Console.WriteLine($"Benchmark (AppDomain Mode):           { total_domain_cycle_count * 1000.0 / timer.ElapsedMilliseconds } run / sec");
+                Console.WriteLine($"Benchmark (AppDomain Mode):           { total_domain_cycle_count * 1000.0 * 100 / timer.ElapsedMilliseconds } run / sec");
             }
 
             //if (false)
@@ -61,12 +61,12 @@ namespace AppDomainWorker
                 {
                     var p = Process.Start(new ProcessStartInfo()
                     {
-                        FileName = @"C:\CodeWork\github.com\Andrew.ProcessPoolDemo\ProcessHostFx\bin\Release\ProcessHostFx.exe",              // .net fx 4.7.2
+                        FileName = @"D:\CodeWork\github.com\Andrew.ProcessPoolDemo\ProcessHostFx\bin\Debug\ProcessHostFx.exe",              // .net fx 4.7.2
                         WindowStyle = ProcessWindowStyle.Hidden,
                     });
                     p.WaitForExit();
                 }
-                Console.WriteLine($"Benchmark (.NET Fx Process Mode):     { total_domain_cycle_count * 1000.0 / timer.ElapsedMilliseconds } run / sec");
+                Console.WriteLine($"Benchmark (.NET Fx Process Mode):     { total_domain_cycle_count * 1000.0 * 100 / timer.ElapsedMilliseconds } run / sec");
             }
 
             //if (false)
@@ -76,12 +76,12 @@ namespace AppDomainWorker
                 {
                     var p = Process.Start(new ProcessStartInfo()
                     {
-                        FileName = @"C:\CodeWork\github.com\Andrew.ProcessPoolDemo\ProcessHost\bin\Release\netcoreapp3.1\ProcessHost.exe",    // .net core 3.1
+                        FileName = @"D:\CodeWork\github.com\Andrew.ProcessPoolDemo\ProcessHost\bin\Debug\netcoreapp3.1\ProcessHost.exe",    // .net core 3.1
                         WindowStyle = ProcessWindowStyle.Hidden,
                     });
                     p.WaitForExit();
                 }
-                Console.WriteLine($"Benchmark (.NET Core Process Mode):   { total_domain_cycle_count * 1000.0 / timer.ElapsedMilliseconds } run / sec");
+                Console.WriteLine($"Benchmark (.NET Core Process Mode):   { total_domain_cycle_count * 1000.0 * 100 / timer.ElapsedMilliseconds } run / sec");
             }
         }
     }

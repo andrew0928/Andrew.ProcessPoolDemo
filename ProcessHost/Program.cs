@@ -9,6 +9,7 @@ namespace ProcessHost
     {
         public static int Main(string[] args)
         {
+            //return 0;
             //return HelloWorldTask.Program.Main(args);
 
             for (int i = 1; i < 100; i++)

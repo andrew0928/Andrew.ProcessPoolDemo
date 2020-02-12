@@ -25,6 +25,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "x", "x", "{A98029B9-D398-4D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TaskLib", "TaskLib\TaskLib.csproj", "{3B85A28C-D377-43E6-BCE5-4BF4ECA302D5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetFxProcess", "NetFxProcess\NetFxProcess.csproj", "{52361A0D-EDDE-4AB2-AF71-4A01488BB5B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetCoreProcess", "NetCoreProcess\NetCoreProcess.csproj", "{8A01C3C9-A25E-40BE-A8A8-C27178927937}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +75,14 @@ Global
 		{3B85A28C-D377-43E6-BCE5-4BF4ECA302D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B85A28C-D377-43E6-BCE5-4BF4ECA302D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B85A28C-D377-43E6-BCE5-4BF4ECA302D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52361A0D-EDDE-4AB2-AF71-4A01488BB5B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52361A0D-EDDE-4AB2-AF71-4A01488BB5B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52361A0D-EDDE-4AB2-AF71-4A01488BB5B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52361A0D-EDDE-4AB2-AF71-4A01488BB5B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A01C3C9-A25E-40BE-A8A8-C27178927937}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A01C3C9-A25E-40BE-A8A8-C27178927937}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A01C3C9-A25E-40BE-A8A8-C27178927937}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A01C3C9-A25E-40BE-A8A8-C27178927937}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

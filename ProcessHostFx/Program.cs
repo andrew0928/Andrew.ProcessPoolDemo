@@ -11,6 +11,8 @@ namespace ProcessHostFx
     {
         static void Main(string[] args)
         {
+            //return;
+
             for (int i = 1; i < 100; i++)
             {
                 new HelloWorld().DoTask();

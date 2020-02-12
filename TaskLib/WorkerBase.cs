@@ -5,57 +5,60 @@ using System.Text;
 using System.Threading;
 using System.IO.Pipes;
 using System.IO;
+using System.Diagnostics;
 
 namespace TaskLib
 {
-    public abstract class WorkerBase
+    public abstract class HelloWorkerBase
     {
-        public WorkerBase()
+        public HelloWorkerBase()
         {
         }
 
-        public abstract TaskWrap<int,string> QueueTask(int size);
+        public abstract HelloTaskResult QueueTask(int size);
 
-        public abstract void CompleteWorker();
+        public abstract void Stop();
 
-        public class TaskWrap<TArgs, TResult>
+        
+        public class HelloTaskResult
         {
-            public TArgs Args;
-            public TResult Result;
-            public ManualResetEventSlim Wait = new ManualResetEventSlim(false);
+            public HelloTaskResult(bool waitState = false)
+            {
+                this.Wait = new ManualResetEventSlim(waitState);
+            }
+            //public string ReturnValue;
+            public byte[] ReturnValue;
+            public readonly ManualResetEventSlim Wait;
         }
+
     }
 
 
-    public class InProcessWorker : WorkerBase
+    public class InProcessWorker : HelloWorkerBase
     {
-        public override TaskWrap<int, string> QueueTask(int size)
+        public override HelloTaskResult QueueTask(int size)
         {
-            TaskWrap<int, string> tw = new WorkerBase.TaskWrap<int, string>()
+            return new HelloWorkerBase.HelloTaskResult(true)
             {
-                Args = size,
-                Result = (new HelloTask()).DoTask(size),
+                //ReturnValue = (new HelloTask()).DoTask(size)
+                ReturnValue = (new HelloTask()).DoTask(new byte[size * 1024 * 1024]),
             };
-            tw.Wait.Set();
-            return tw;
         }
 
-        public override void CompleteWorker()
+        public override void Stop()
         {
             return;
         }
     }
 
-
-
-    public class ThreadWorker : WorkerBase
+    public class ThreadWorker : HelloWorkerBase
     {
         private Thread _worker_thread = null;
-        private BlockingCollection<TaskWrap<int, string>> _queue;
+        private BlockingCollection<(int size, HelloTaskResult result)> _queue;
 
         public ThreadWorker() : base()
         {
-            this._queue = new BlockingCollection<TaskWrap<int, string>>();
+            this._queue = new BlockingCollection<(int size, HelloTaskResult result)>();
 
             this._worker_thread = new Thread(this.ThreadHandler);
             this._worker_thread.Start();
@@ -69,8 +72,9 @@ namespace TaskLib
                 try
                 {
                     var task = this._queue.Take();
-                    task.Result = (new HelloTask()).DoTask(task.Args);
-                    task.Wait.Set();
+                    //task.result.ReturnValue = (new HelloTask()).DoTask(task.size);
+                    task.result.ReturnValue = (new HelloTask()).DoTask(new byte[task.size * 1024 * 1024]);
+                    task.result.Wait.Set();
                 }
                 catch(InvalidOperationException)
                 {
@@ -79,23 +83,62 @@ namespace TaskLib
             }
         }
 
-        public override TaskWrap<int, string> QueueTask(int size)
+        public override HelloTaskResult QueueTask(int size)
         {
-            TaskWrap<int, string> task = new TaskWrap<int, string>()
-            {
-                Args = size
-            };
-            this._queue.Add(task);
-            return task;
+            HelloTaskResult result = new HelloTaskResult();
+            this._queue.Add((size, result));
+            return result;
         }
 
-        public override void CompleteWorker()
+        public override void Stop()
         {
             this._queue.CompleteAdding();
             this._worker_thread.Join();
             return;
         }
     }
+
+    public class SingleProcessWorker : HelloWorkerBase
+    {
+        private Process _process = null;
+        private TextReader _reader = null;
+        private TextWriter _writer = null;
+
+        public SingleProcessWorker(string path)
+        {
+            this._process = Process.Start(new ProcessStartInfo()
+            {
+                FileName = path, //@"D:\CodeWork\github.com\Andrew.ProcessPoolDemo\NetFxProcess\bin\Debug\NetFxProcess.exe",
+                Arguments = "",
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false
+            });
+
+            this._reader = this._process.StandardOutput;
+            this._writer = this._process.StandardInput;
+        }
+
+        public override HelloTaskResult QueueTask(int size)
+        {
+            //this._writer.WriteLine(size);
+            this._writer.WriteLine(Convert.ToBase64String(new byte[size * 1024 * 1024]));
+
+            return new HelloTaskResult(true)
+            {
+                //ReturnValue = this._reader.ReadLine()
+                ReturnValue = Convert.FromBase64String(this._reader.ReadLine())
+            };
+        }
+
+        public override void Stop()
+        {
+            this._writer.Close();
+            this._process.WaitForExit();
+        }
+    }
+
+
 
     /*
     public class AppDomainWorker : WorkerBase
