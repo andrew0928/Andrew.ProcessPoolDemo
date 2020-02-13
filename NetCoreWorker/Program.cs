@@ -8,32 +8,13 @@ namespace NetCoreWorker
     {
         static void Main(string[] args)
         {
-            //var worker =
-            //new InProcessWorker();
-            //new SingleAppDomainWorker();
-            //new SingleProcessWorker();
-
-            Stopwatch _timer = new Stopwatch();
-            int count = 1000;
-
-            foreach (var worker in (new HelloWorkerBase[] {
-                new InProcessWorker(), 
-                //new SingleAppDomainWorker(), 
-                new SingleProcessWorker(@"D:\CodeWork\github.com\Andrew.ProcessPoolDemo\NetFxProcess\bin\Debug\NetFxProcess.exe"),
-                new SingleProcessWorker(@"D:\CodeWork\github.com\Andrew.ProcessPoolDemo\NetCoreProcess\bin\Debug\netcoreapp3.1\NetCoreProcess.exe"),}))
-            {
-                _timer.Restart();
-                for (int i = 0; i < count; i++)
-                {
-                    var task = worker.QueueTask(1);
-
-                    //task.Wait.Wait();
-                    //Console.WriteLine(task.ReturnValue);
-                }
-                worker.Stop();
-
-                Console.WriteLine($"{worker.GetType().Name}: {count * 1000.0 / _timer.ElapsedMilliseconds} tasks/sec");
-            }
+            string mode = args[0]; // "VALUE"; // VALUE | BASE64
+            TaskLib.Program.WorkerMain(mode, new HelloWorkerBase[] {
+                new InProcessWorker(),
+                //new SingleAppDomainWorker(),
+                new SingleProcessWorker(@"D:\CodeWork\github.com\Andrew.ProcessPoolDemo\NetFxProcess\bin\Debug\NetFxProcess.exe", mode),
+                new SingleProcessWorker(@"D:\CodeWork\github.com\Andrew.ProcessPoolDemo\NetCoreProcess\bin\Debug\netcoreapp3.1\NetCoreProcess.exe", mode)
+            });
         }
     }
 }

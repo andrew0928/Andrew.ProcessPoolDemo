@@ -16,6 +16,7 @@ namespace TaskLib
         }
 
         public abstract HelloTaskResult QueueTask(int size);
+        public abstract HelloTaskResult QueueTask(byte[] buffer);
 
         public abstract void Stop();
 
@@ -26,8 +27,7 @@ namespace TaskLib
             {
                 this.Wait = new ManualResetEventSlim(waitState);
             }
-            //public string ReturnValue;
-            public byte[] ReturnValue;
+            public string ReturnValue;
             public readonly ManualResetEventSlim Wait;
         }
 
@@ -36,12 +36,18 @@ namespace TaskLib
 
     public class InProcessWorker : HelloWorkerBase
     {
+        public override HelloTaskResult QueueTask(byte[] buffer)
+        {
+            return new HelloWorkerBase.HelloTaskResult(true)
+            {
+                ReturnValue = (new HelloTask()).DoTask(buffer),
+            };
+        }
         public override HelloTaskResult QueueTask(int size)
         {
             return new HelloWorkerBase.HelloTaskResult(true)
             {
-                //ReturnValue = (new HelloTask()).DoTask(size)
-                ReturnValue = (new HelloTask()).DoTask(new byte[size * 1024 * 1024]),
+                ReturnValue = (new HelloTask()).DoTask(size)
             };
         }
 
@@ -50,7 +56,7 @@ namespace TaskLib
             return;
         }
     }
-
+    /*
     public class ThreadWorker : HelloWorkerBase
     {
         private Thread _worker_thread = null;
@@ -72,8 +78,13 @@ namespace TaskLib
                 try
                 {
                     var task = this._queue.Take();
-                    //task.result.ReturnValue = (new HelloTask()).DoTask(task.size);
+
+#if MODE_BUFFER
                     task.result.ReturnValue = (new HelloTask()).DoTask(new byte[task.size * 1024 * 1024]);
+#else
+                    task.result.ReturnValue = (new HelloTask()).DoTask(task.size);
+#endif
+
                     task.result.Wait.Set();
                 }
                 catch(InvalidOperationException)
@@ -97,19 +108,22 @@ namespace TaskLib
             return;
         }
     }
+    */
 
     public class SingleProcessWorker : HelloWorkerBase
     {
         private Process _process = null;
         private TextReader _reader = null;
         private TextWriter _writer = null;
+        private string _mode = null;
 
-        public SingleProcessWorker(string path)
+        public SingleProcessWorker(string filename, string args)
         {
+            this._mode = args;
             this._process = Process.Start(new ProcessStartInfo()
             {
-                FileName = path, //@"D:\CodeWork\github.com\Andrew.ProcessPoolDemo\NetFxProcess\bin\Debug\NetFxProcess.exe",
-                Arguments = "",
+                FileName = filename, //@"D:\CodeWork\github.com\Andrew.ProcessPoolDemo\NetFxProcess\bin\Debug\NetFxProcess.exe",
+                Arguments = args,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false
@@ -121,13 +135,21 @@ namespace TaskLib
 
         public override HelloTaskResult QueueTask(int size)
         {
-            //this._writer.WriteLine(size);
-            this._writer.WriteLine(Convert.ToBase64String(new byte[size * 1024 * 1024]));
-
+            if (this._mode != "VALUE") throw new InvalidOperationException();
+            this._writer.WriteLine(size);
             return new HelloTaskResult(true)
             {
-                //ReturnValue = this._reader.ReadLine()
-                ReturnValue = Convert.FromBase64String(this._reader.ReadLine())
+                ReturnValue = this._reader.ReadLine()
+            };
+        }
+
+        public override HelloTaskResult QueueTask(byte[] buffer)
+        {
+            if (this._mode != "BASE64") throw new InvalidOperationException();
+            this._writer.WriteLine(Convert.ToBase64String(buffer));
+            return new HelloTaskResult(true)
+            {
+                ReturnValue = this._reader.ReadLine()
             };
         }
 
@@ -138,71 +160,4 @@ namespace TaskLib
         }
     }
 
-
-
-    /*
-    public class AppDomainWorker : WorkerBase
-    {
-        private Thread _worker_thread = null;
-        private Thread _domain_thread = null;
-        private NamedPipeClientStream _pipeClient = null;
-
-        private BlockingCollection<TaskWrap<int, string>> _queue;
-
-        public AppDomainWorker() : base()
-        {
-            this._queue = new BlockingCollection<TaskWrap<int, string>>();
-            this._pipeClient = new NamedPipeClientStream("demo-args");
-
-            this._domain_thread = new Thread(() =>
-            {
-                var domain = AppDomain.CreateDomain("demo");
-                domain.ExecuteAssemblyByName(typeof(Program).Assembly.FullName, "demo-args");
-                AppDomain.Unload(domain);
-            });
-            this._domain_thread.Start();
-
-            this._worker_thread = new Thread(this.AppDomainHandler);
-            this._worker_thread.Start();
-        }
-
-        private void AppDomainHandler()
-        {
-            BinaryWriter bw = new BinaryWriter(this._pipeClient);
-            while (true)
-            {
-                try
-                {
-                    var task = this._queue.Take();
-                    bw.Write(task.Args);
-                    //task.Result = (new HelloTask()).DoTask(task.Args);
-                    task.Wait.Set();
-                }
-                catch (InvalidOperationException)
-                {
-                    break;
-                }
-            }
-        }
-
-        public override TaskWrap<int, string> QueueTask(int size)
-        {
-            TaskWrap<int, string> task = new TaskWrap<int, string>()
-            {
-                Args = size
-            };
-            this._queue.Add(task);
-            return task;
-        }
-
-        public override void CompleteWorker()
-        {
-            this._queue.CompleteAdding();
-
-            this._worker_thread.Join();
-            this._domain_thread.Join();
-            return;
-        }
-    }
-    */
 }

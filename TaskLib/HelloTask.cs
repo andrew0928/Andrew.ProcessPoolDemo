@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define NULL_LOAD
+
+using System;
 using System.Security.Cryptography;
 using System.Threading;
 
@@ -6,25 +8,33 @@ namespace TaskLib
 {
     public class HelloTask : MarshalByRefObject
     {
-        //public static int _count = 0;
-        //private static Random _rnd = new Random();
-        //private static HashAlgorithm _ha = HashAlgorithm.Create("SHA512");
 
-        //public string DoTask(int bufferSize)
-        //{
-        //    byte[] buffer = new byte[bufferSize * 1024 * 1024];
-        //    var hash = this.DoTask(buffer);
-        //    return $"[{_count}]" +　Convert.ToBase64String(hash);
-        //}
-
-        //public byte[] DoTask(byte[] buffer)
-        //{
-        //    _rnd.NextBytes(buffer);
-        //    return _ha.ComputeHash(buffer);
-        //}
-
+#if NULL_LOAD
         public string DoTask(int size) => null;
-        public byte[] DoTask(byte[] buffer) => new byte[512];
+        public string DoTask(byte[] buffer) => Convert.ToBase64String(new byte[512]);
+#else
+
+        //public static int _count = 0;
+        public static bool state_must_be_true = true;
+
+        private static Random _rnd = new Random();
+        private static HashAlgorithm _ha = HashAlgorithm.Create("SHA512");
+
+        public string DoTask(int bufferSize)
+        {
+            byte[] buffer = new byte[bufferSize];
+            return this.DoTask(buffer);
+        }
+
+        public string DoTask(byte[] buffer)
+        {
+            if (state_must_be_true == false) throw new InvalidProgramException();
+
+            _rnd.NextBytes(buffer);
+            return Convert.ToBase64String(_ha.ComputeHash(buffer));
+        }
+
+#endif
     }
 
 }
