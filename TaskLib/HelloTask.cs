@@ -8,14 +8,13 @@ namespace TaskLib
 {
     public class HelloTask : MarshalByRefObject
     {
+        public static bool state_must_be_true = true;
 
 #if NULL_LOAD
         public string DoTask(int size) => null;
-        public string DoTask(byte[] buffer) => Convert.ToBase64String(new byte[512]);
+        public string DoTask(byte[] buffer) => ""; //Convert.ToBase64String(new byte[512]);
 #else
 
-        //public static int _count = 0;
-        public static bool state_must_be_true = true;
 
         private static Random _rnd = new Random();
         private static HashAlgorithm _ha = HashAlgorithm.Create("SHA512");
