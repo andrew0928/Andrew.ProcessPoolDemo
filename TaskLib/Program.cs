@@ -13,7 +13,7 @@ namespace TaskLib
         {
             Stopwatch _timer = new Stopwatch();
             int count = 10000;
-            int buffer_size = 1 * 1024; // 1kb
+            int buffer_size = 1 * 1024 * 1024; // 1kb
             
             //HelloTask.state_must_be_true = false;   // test isolation
 
