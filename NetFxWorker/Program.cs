@@ -13,7 +13,7 @@ namespace NetFxWorker
         static void Main(string[] args)
         {
             string mode = args[0]; // "VALUE"; // VALUE | BASE64
-            TaskLib.Program.WorkerMain(mode, new HelloWorkerBase[] 
+            TaskLib.Program.WorkerMain(mode, new HelloWorkerBase[]
             {
                 new InProcessWorker(),
                 new SingleAppDomainWorker(),

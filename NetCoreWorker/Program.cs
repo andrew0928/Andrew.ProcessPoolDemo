@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using TaskLib;
 
 namespace NetCoreWorker
@@ -8,7 +9,7 @@ namespace NetCoreWorker
     {
         static void Main(string[] args)
         {
-            string mode = (args.Length == 0)?("BASE64"):(args[0]); // "VALUE"; // VALUE | BASE64
+            string mode = (args.Length == 0) ? ("BASE64") : (args[0]); // "VALUE"; // VALUE | BASE64
             TaskLib.Program.WorkerMain(mode, new HelloWorkerBase[] {
                 new InProcessWorker(),
                 //new SingleAppDomainWorker(),
