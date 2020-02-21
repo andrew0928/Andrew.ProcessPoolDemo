@@ -37,6 +37,8 @@ namespace TaskLib
             {
                 if (this._total_created_process_count >= this._max_pool_size) return false;
                 if (this._total_created_process_count > this._total_working_process_count) return false;
+                if (this._queue.Count == 0) return false;
+                if (this._queue.IsCompleted) return false;
             }
 
             var t = new Thread(this.ProcessHandler);
@@ -46,7 +48,11 @@ namespace TaskLib
         }
         private bool ShouldDecreaseProcess()
         {
-            lock (this._syncroot) if (this._total_created_process_count <= this._min_pool_size) return false;
+            lock (this._syncroot)
+            {
+                if (this._total_created_process_count <= this._min_pool_size) return false;
+                if (this._queue.Count > 0) return false;
+            }
             return true;
         }
 

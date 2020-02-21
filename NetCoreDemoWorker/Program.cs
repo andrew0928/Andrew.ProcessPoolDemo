@@ -12,13 +12,17 @@ namespace NetCoreDemoWorker
                 @"D:\CodeWork\github.com\Andrew.ProcessPoolDemo\NetFxProcess\bin\Debug\NetFxProcess.exe",
                 2, 5, 3000);
 
-            for (int i = 0; i < 100; i++) worker.QueueTask(new byte[1 * 1024 * 1024]);
+            //for (int i = 0; i < 100; i++) worker.QueueTask(new byte[1 * 1024 * 1024]);
 
-            Console.WriteLine("Take a rest (worker idle 10 sec)...");
-            Task.Delay(10 * 1000).Wait();
-            Console.WriteLine("Wake up, start work.");
+            //Console.WriteLine("Take a rest (worker idle 10 sec)...");
+            //Task.Delay(10 * 1000).Wait();
+            //Console.WriteLine("Wake up, start work.");
 
-            for (int i = 0; i < 100; i++) worker.QueueTask(new byte[1024 * 1024]);
+            //for (int i = 0; i < 100; i++) worker.QueueTask(new byte[1024 * 1024]);
+
+            worker.QueueTask(new byte[1000]);
+            Task.Delay(100000).Wait();
+
             worker.Stop();
         }
     }
