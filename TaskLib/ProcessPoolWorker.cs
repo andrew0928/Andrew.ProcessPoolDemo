@@ -50,8 +50,8 @@ namespace TaskLib
         {
             lock (this._syncroot)
             {
-                if (this._total_created_process_count <= this._min_pool_size) return false;
                 if (this._queue.Count > 0) return false;
+                if (this._total_created_process_count <= this._min_pool_size) return false;
             }
             return true;
         }
